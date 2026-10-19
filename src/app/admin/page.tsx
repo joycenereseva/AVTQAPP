@@ -4,6 +4,9 @@ import { StudentAvatar } from "@/components/students/StudentAvatar";
 import { calcAgeFromBirthDate } from "@/lib/utils";
 import { signedStudentPhotoUrl } from "@/lib/photos";
 import { AdminStudentSearch } from "@/components/students/AdminStudentSearch";
+import { alunoToDbStudent, mapStudentStatusFromNome, probeTotalFromRow } from "@/lib/db/mappers";
+import type { AlunoRow, AvaliacaoRow } from "@/lib/db/types";
+import { mergeDadosQualitativos } from "@/lib/db/mappers";
 
 export default async function AdminHomePage({
   searchParams,
@@ -12,17 +15,13 @@ export default async function AdminHomePage({
 }) {
   const { q } = await searchParams;
   const supabase = await createClient();
-  let query = supabase
-    .from("students")
-    .select("*, assessments(id, assessment_date, status, probe_total, finalized_at)")
-    .eq("status", "active")
-    .order("full_name");
+  let query = supabase.from("alunos").select("*, avaliacoes(*)").order("nome");
 
   if (q?.trim()) {
-    query = query.ilike("full_name", `%${q.trim()}%`);
+    query = query.ilike("nome", `%${q.trim()}%`);
   }
 
-  const { data: students, error } = await query;
+  const { data: rows, error } = await query;
 
   if (error) {
     return (
@@ -32,18 +31,22 @@ export default async function AdminHomePage({
     );
   }
 
+  const students = (rows ?? []).filter((r) => {
+    const row = r as AlunoRow;
+    return mapStudentStatusFromNome(row.nome) === "active";
+  });
+
   const cards = await Promise.all(
-    (students ?? []).map(async (s) => {
-      const evals = (s.assessments ?? []).filter(
-        (e: { status: string }) => e.status === "finalized" || e.status === "draft",
+    students.map(async (raw) => {
+      const row = raw as AlunoRow & { avaliacoes?: AvaliacaoRow[] };
+      const s = alunoToDbStudent(row);
+      const evals = (row.avaliacoes ?? []).filter(
+        (e) => mergeDadosQualitativos(e).status !== "substituida",
       );
-      evals.sort(
-        (a: { assessment_date: string }, b: { assessment_date: string }) =>
-          a.assessment_date.localeCompare(b.assessment_date),
-      );
+      evals.sort((a, b) => a.data_avaliacao.localeCompare(b.data_avaliacao));
       const last = evals[evals.length - 1];
-      const photo = await signedStudentPhotoUrl(s.photo_path);
-      return { ...s, last, photoUrl: photo };
+      const photo = await signedStudentPhotoUrl(row.foto_url);
+      return { s, last, photoUrl: photo };
     }),
   );
 
@@ -68,10 +71,10 @@ export default async function AdminHomePage({
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {cards.map((s) => (
+          {cards.map(({ s, last, photoUrl }) => (
             <article key={s.id} className="card flex flex-col p-4">
               <div className="flex gap-3">
-                <StudentAvatar name={s.full_name} photoUrl={s.photoUrl} />
+                <StudentAvatar name={s.full_name} photoUrl={photoUrl} />
                 <div className="min-w-0 flex-1">
                   <h2 className="truncate font-semibold text-[var(--teal-dark)]">{s.full_name}</h2>
                   <p className="text-xs text-[var(--gray-text)]">
@@ -81,8 +84,8 @@ export default async function AdminHomePage({
                     {s.schedule ? ` · ${s.schedule}` : ""}
                   </p>
                   <p className="mt-1 text-xs text-[var(--gray-text)]">
-                    {s.last
-                      ? `Última avaliação: ${s.last.assessment_date} · Nota ${s.last.probe_total ?? "—"}`
+                    {last
+                      ? `Última avaliação: ${last.data_avaliacao} · Nota ${probeTotalFromRow(last) ?? "—"}`
                       : "Nenhuma avaliação"}
                   </p>
                 </div>

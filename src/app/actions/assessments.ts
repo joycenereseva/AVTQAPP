@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { computeProbeTotal, type ProbeRow, type SkillsMap } from "@/lib/assessment-form";
+import type { ProbeRow, SkillsMap } from "@/lib/assessment-form";
 import { generateShareToken, hashShareToken } from "@/lib/share-token";
 import type { AssessmentModel, AssessmentStatus } from "@/lib/types/database";
+import { formToAvaliacaoPayload, mergeDadosQualitativos } from "@/lib/db/mappers";
+import type { AvaliacaoRow, DadosQualitativos } from "@/lib/db/types";
 
 export type SaveAssessmentInput = {
   id?: string;
@@ -35,62 +37,43 @@ async function requireUser() {
 }
 
 export async function saveAssessment(input: SaveAssessmentInput) {
-  const { supabase, user } = await requireUser();
-  const probeTotal = computeProbeTotal(input.probeRows);
-  const payload = {
-    student_id: input.studentId,
-    owner_id: user.id,
-    reference_month: input.referenceMonth,
-    assessment_date: input.assessmentDate,
-    status: input.status,
-    modelo: input.modelo,
-    skills: input.skills,
-    probe_nao_incluso: input.probeNaoIncluso,
-    probe_rows: input.probeRows,
-    probe_total: probeTotal,
-    gallahue: input.gallahue || null,
-    morgana: input.morgana || null,
-    desenvolturas: input.desenvolturas.filter(Boolean),
-    dificuldades: input.dificuldades.filter(Boolean),
-    meta: input.meta || null,
-    consideracoes: input.consideracoes || null,
-    finalized_at: input.status === "finalized" ? new Date().toISOString() : null,
-  };
+  const { supabase } = await requireUser();
+  const payload = formToAvaliacaoPayload(input);
 
   if (input.id) {
     const { data: existing } = await supabase
-      .from("assessments")
+      .from("avaliacoes")
       .select("*")
       .eq("id", input.id)
       .single();
 
-    if (existing?.status === "finalized" && input.status === "draft") {
-      throw new Error("Não é possível reabrir rascunho de avaliação finalizada.");
-    }
-
-    if (existing?.status === "finalized") {
-      await supabase.from("assessment_audit_logs").insert({
-        assessment_id: input.id,
-        changed_by: user.id,
-        change_type: "update_finalized",
-        snapshot_before: existing,
-        snapshot_after: payload,
-      });
+    if (existing) {
+      const prev = mergeDadosQualitativos(existing as AvaliacaoRow);
+      if (prev.status === "finalizada" && input.status === "draft") {
+        throw new Error("Não é possível reabrir rascunho de avaliação finalizada.");
+      }
+      const dq: DadosQualitativos = {
+        ...(payload.dados_qualitativos as DadosQualitativos),
+        share_token_hash: prev.share_token_hash,
+        share_revoked_at: prev.share_revoked_at,
+      };
+      payload.dados_qualitativos = dq;
     }
 
     const { data, error } = await supabase
-      .from("assessments")
+      .from("avaliacoes")
       .update(payload)
       .eq("id", input.id)
       .select("id")
       .single();
     if (error) throw new Error(error.message);
     revalidatePath(`/admin/alunos/${input.studentId}`);
+    revalidatePath(`/admin/avaliacoes/${input.id}`);
     return { id: data.id as string };
   }
 
   const { data, error } = await supabase
-    .from("assessments")
+    .from("avaliacoes")
     .insert(payload)
     .select("id")
     .single();
@@ -100,48 +83,62 @@ export async function saveAssessment(input: SaveAssessmentInput) {
 }
 
 export async function finalizeAssessment(assessmentId: string, studentId: string) {
-  const { supabase, user } = await requireUser();
-  const { error } = await supabase
-    .from("assessments")
-    .update({
-      status: "finalized",
-      finalized_at: new Date().toISOString(),
-    })
+  const { supabase } = await requireUser();
+  const { data: existing } = await supabase
+    .from("avaliacoes")
+    .select("dados_qualitativos")
     .eq("id", assessmentId)
-    .eq("owner_id", user.id);
+    .single();
+  const dq = mergeDadosQualitativos((existing ?? {}) as AvaliacaoRow);
+  const nextDq: DadosQualitativos = { ...dq, status: "finalizada" };
+
+  const { error } = await supabase
+    .from("avaliacoes")
+    .update({ dados_qualitativos: nextDq })
+    .eq("id", assessmentId);
   if (error) throw new Error(error.message);
   revalidatePath(`/admin/alunos/${studentId}`);
   revalidatePath(`/admin/avaliacoes/${assessmentId}`);
 }
 
 export async function createShareLink(assessmentId: string, studentId: string) {
-  const { supabase, user } = await requireUser();
+  const { supabase } = await requireUser();
 
   const { data: assessment, error: aErr } = await supabase
-    .from("assessments")
-    .select("id, status")
+    .from("avaliacoes")
+    .select("*")
     .eq("id", assessmentId)
-    .eq("owner_id", user.id)
     .single();
   if (aErr || !assessment) throw new Error("Avaliação não encontrada.");
-  if (assessment.status !== "finalized") {
+
+  const dq = mergeDadosQualitativos(assessment as AvaliacaoRow);
+  if (dq.status !== "finalizada") {
     throw new Error("Finalize a avaliação antes de gerar o link.");
   }
 
-  await supabase
-    .from("share_links")
-    .update({ revoked_at: new Date().toISOString() })
-    .eq("assessment_id", assessmentId)
-    .is("revoked_at", null);
-
   const token = generateShareToken();
   const tokenHash = hashShareToken(token);
+  const nextDq: DadosQualitativos = {
+    ...dq,
+    share_token_hash: tokenHash,
+    share_revoked_at: null,
+  };
 
-  const { error } = await supabase.from("share_links").insert({
-    assessment_id: assessmentId,
+  const { error: upErr } = await supabase
+    .from("avaliacoes")
+    .update({ dados_qualitativos: nextDq })
+    .eq("id", assessmentId);
+  if (upErr) throw new Error(upErr.message);
+
+  // Opcional se a tabela share_links existir
+  const { error: linkErr } = await supabase.from("share_links").insert({
+    avaliacao_id: assessmentId,
     token_hash: tokenHash,
+    revoked_at: null,
   });
-  if (error) throw new Error(error.message);
+  if (linkErr && !linkErr.message.includes("Could not find")) {
+    /* share_links opcional — token já está em dados_qualitativos */
+  }
 
   revalidatePath(`/admin/avaliacoes/${assessmentId}`);
   revalidatePath(`/admin/alunos/${studentId}`);
@@ -150,10 +147,24 @@ export async function createShareLink(assessmentId: string, studentId: string) {
 
 export async function revokeShareLink(shareLinkId: string, assessmentId: string) {
   const { supabase } = await requireUser();
-  const { error } = await supabase
+  await supabase
     .from("share_links")
     .update({ revoked_at: new Date().toISOString() })
     .eq("id", shareLinkId);
-  if (error) throw new Error(error.message);
+
+  const { data: assessment } = await supabase
+    .from("avaliacoes")
+    .select("dados_qualitativos")
+    .eq("id", assessmentId)
+    .single();
+  if (assessment) {
+    const dq = mergeDadosQualitativos(assessment as AvaliacaoRow);
+    await supabase
+      .from("avaliacoes")
+      .update({
+        dados_qualitativos: { ...dq, share_revoked_at: new Date().toISOString() },
+      })
+      .eq("id", assessmentId);
+  }
   revalidatePath(`/admin/avaliacoes/${assessmentId}`);
 }

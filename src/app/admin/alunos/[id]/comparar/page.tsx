@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { CompareAssessments } from "@/components/assessments/CompareAssessments";
+import { alunoToDbStudent, mergeDadosQualitativos } from "@/lib/db/mappers";
+import type { AlunoRow, AvaliacaoRow } from "@/lib/db/types";
 import type { SkillsMap } from "@/lib/assessment-form";
 
 export default async function ComparePage({
@@ -15,21 +17,19 @@ export default async function ComparePage({
   const { a, b } = await searchParams;
   const supabase = await createClient();
 
-  const { data: student } = await supabase
-    .from("students")
-    .select("full_name, modelo")
-    .eq("id", studentId)
-    .single();
-  if (!student) notFound();
+  const { data: alunoRow } = await supabase.from("alunos").select("*").eq("id", studentId).single();
+  if (!alunoRow) notFound();
+  const student = alunoToDbStudent(alunoRow as AlunoRow);
 
   const { data: evals } = await supabase
-    .from("assessments")
-    .select("id, assessment_date, reference_month, skills")
-    .eq("student_id", studentId)
-    .eq("status", "finalized")
-    .order("assessment_date", { ascending: true });
+    .from("avaliacoes")
+    .select("*")
+    .eq("aluno_id", studentId)
+    .order("data_avaliacao", { ascending: true });
 
-  const list = evals ?? [];
+  const list = ((evals ?? []) as AvaliacaoRow[]).filter(
+    (e) => mergeDadosQualitativos(e).status === "finalizada",
+  );
   const leftId = a ?? list[0]?.id;
   const rightId = b ?? list[list.length - 1]?.id;
   const left = list.find((e) => e.id === leftId);
@@ -54,7 +54,7 @@ export default async function ComparePage({
           <select name="a" className="form-control" defaultValue={leftId}>
             {list.map((e) => (
               <option key={e.id} value={e.id}>
-                {e.reference_month} · {e.assessment_date}
+                {e.mes_referencia} · {e.data_avaliacao}
               </option>
             ))}
           </select>
@@ -64,7 +64,7 @@ export default async function ComparePage({
           <select name="b" className="form-control" defaultValue={rightId}>
             {list.map((e) => (
               <option key={e.id} value={e.id}>
-                {e.reference_month} · {e.assessment_date}
+                {e.mes_referencia} · {e.data_avaliacao}
               </option>
             ))}
           </select>
@@ -79,15 +79,15 @@ export default async function ComparePage({
           modelo={student.modelo}
           left={{
             id: left.id,
-            label: `${left.reference_month} · ${left.assessment_date}`,
-            assessment_date: left.assessment_date,
-            skills: (left.skills as SkillsMap) ?? {},
+            label: `${left.mes_referencia} · ${left.data_avaliacao}`,
+            assessment_date: left.data_avaliacao,
+            skills: (mergeDadosQualitativos(left).skills ?? {}) as SkillsMap,
           }}
           right={{
             id: right.id,
-            label: `${right.reference_month} · ${right.assessment_date}`,
-            assessment_date: right.assessment_date,
-            skills: (right.skills as SkillsMap) ?? {},
+            label: `${right.mes_referencia} · ${right.data_avaliacao}`,
+            assessment_date: right.data_avaliacao,
+            skills: (mergeDadosQualitativos(right).skills ?? {}) as SkillsMap,
           }}
         />
       ) : (

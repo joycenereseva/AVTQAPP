@@ -117,8 +117,9 @@ export function AssessmentEditor({
     startTransition(async () => {
       try {
         const { token } = await createShareLink(assessmentId, studentId);
-        const origin = window.location.origin;
-        const url = `${origin}/avaliacao/${token}`;
+        const base =
+          process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || window.location.origin;
+        const url = `${base}/avaliacao/${token}`;
         setShareUrl(url);
         setMessage("Link gerado. Copie ou envie pelo WhatsApp.");
       } catch (e) {

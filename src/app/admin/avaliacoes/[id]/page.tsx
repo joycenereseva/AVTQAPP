@@ -1,8 +1,13 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AssessmentEditor } from "@/components/assessments/AssessmentEditor";
-import type { AssessmentFormValues } from "@/components/assessments/AssessmentForm";
-import type { AssessmentStatus } from "@/lib/types/database";
+import {
+  alunoToDbStudent,
+  avaliacaoToFormValues,
+  mapAssessmentStatus,
+  mergeDadosQualitativos,
+} from "@/lib/db/mappers";
+import type { AlunoRow, AvaliacaoRow } from "@/lib/db/types";
 
 export default async function EditAssessmentPage({
   params,
@@ -13,51 +18,39 @@ export default async function EditAssessmentPage({
   const supabase = await createClient();
 
   const { data: assessment, error } = await supabase
-    .from("assessments")
-    .select("*, students(full_name, guardian_phone, modelo)")
+    .from("avaliacoes")
+    .select("*")
     .eq("id", id)
     .single();
 
   if (error || !assessment) notFound();
 
-  const student = assessment.students as {
-    full_name: string;
-    guardian_phone: string | null;
-    modelo: "infantil" | "avancado";
-  };
+  const av = assessment as AvaliacaoRow;
+  const { data: alunoRow } = await supabase.from("alunos").select("*").eq("id", av.aluno_id).single();
+  if (!alunoRow) notFound();
+  const student = alunoToDbStudent(alunoRow as AlunoRow);
+  const dq = mergeDadosQualitativos(av);
+  const modelo = dq.modelo ?? student.modelo;
 
   const { data: pastEvals } = await supabase
-    .from("assessments")
-    .select("assessment_date")
-    .eq("student_id", assessment.student_id)
-    .eq("status", "finalized")
-    .order("assessment_date", { ascending: true });
+    .from("avaliacoes")
+    .select("data_avaliacao, dados_qualitativos")
+    .eq("aluno_id", av.aluno_id)
+    .order("data_avaliacao", { ascending: true });
 
-  const reevaluationDates = (pastEvals ?? []).map((e) => e.assessment_date);
-
-  const initial: AssessmentFormValues = {
-    referenceMonth: assessment.reference_month,
-    assessmentDate: assessment.assessment_date,
-    skills: (assessment.skills as AssessmentFormValues["skills"]) ?? {},
-    probeNaoIncluso: assessment.probe_nao_incluso,
-    probeRows: (assessment.probe_rows as AssessmentFormValues["probeRows"]) ?? [],
-    gallahue: assessment.gallahue ?? "",
-    morgana: assessment.morgana ?? "",
-    desenvolturas: (assessment.desenvolturas as string[]) ?? [""],
-    dificuldades: (assessment.dificuldades as string[]) ?? [""],
-    meta: assessment.meta ?? "",
-    consideracoes: assessment.consideracoes ?? "",
-  };
+  const reevaluationDates = (pastEvals ?? [])
+    .filter((e) => mergeDadosQualitativos(e as AvaliacaoRow).status === "finalizada")
+    .map((e) => (e as { data_avaliacao: string }).data_avaliacao);
 
   return (
     <AssessmentEditor
-      studentId={assessment.student_id}
+      studentId={av.aluno_id}
       studentName={student.full_name}
       guardianPhone={student.guardian_phone}
       assessmentId={id}
-      modelo={assessment.modelo ?? student.modelo}
-      status={assessment.status as AssessmentStatus}
-      initial={initial}
+      modelo={modelo}
+      status={mapAssessmentStatus(dq)}
+      initial={avaliacaoToFormValues(av, modelo)}
       reevaluationDates={reevaluationDates}
     />
   );

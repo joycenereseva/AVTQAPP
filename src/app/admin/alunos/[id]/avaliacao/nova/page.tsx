@@ -3,6 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { AssessmentEditor } from "@/components/assessments/AssessmentEditor";
 import type { AssessmentFormValues } from "@/components/assessments/AssessmentForm";
 import { currentReferenceMonthBrazil, todayBrazilISODate } from "@/lib/assessment-form";
+import { alunoToDbStudent, avaliacaoToFormValues, mergeDadosQualitativos } from "@/lib/db/mappers";
+import type { AlunoRow, AvaliacaoRow } from "@/lib/db/types";
+import type { AssessmentStatus } from "@/lib/types/database";
 
 export default async function NewAssessmentPage({
   params,
@@ -15,21 +18,19 @@ export default async function NewAssessmentPage({
   const { from: fromAssessmentId } = await searchParams;
   const supabase = await createClient();
 
-  const { data: student } = await supabase
-    .from("students")
-    .select("*")
-    .eq("id", studentId)
-    .single();
-  if (!student) notFound();
+  const { data: row } = await supabase.from("alunos").select("*").eq("id", studentId).single();
+  if (!row) notFound();
+  const student = alunoToDbStudent(row as AlunoRow);
 
   const { data: pastEvals } = await supabase
-    .from("assessments")
-    .select("assessment_date")
-    .eq("student_id", studentId)
-    .eq("status", "finalized")
-    .order("assessment_date", { ascending: true });
+    .from("avaliacoes")
+    .select("data_avaliacao, dados_qualitativos")
+    .eq("aluno_id", studentId)
+    .order("data_avaliacao", { ascending: true });
 
-  const reevaluationDates = (pastEvals ?? []).map((e) => e.assessment_date);
+  const reevaluationDates = (pastEvals ?? [])
+    .filter((e) => mergeDadosQualitativos(e as AvaliacaoRow).status === "finalizada")
+    .map((e) => (e as { data_avaliacao: string }).data_avaliacao);
 
   let initial: AssessmentFormValues = {
     referenceMonth: currentReferenceMonthBrazil(),
@@ -49,31 +50,15 @@ export default async function NewAssessmentPage({
   };
 
   if (fromAssessmentId) {
-    const { data: ref } = await supabase
-      .from("assessments")
-      .select("*")
-      .eq("id", fromAssessmentId)
-      .single();
+    const { data: ref } = await supabase.from("avaliacoes").select("*").eq("id", fromAssessmentId).single();
     if (ref) {
-      initial = {
-        referenceMonth: ref.reference_month,
-        assessmentDate: todayBrazilISODate(),
-        skills: (ref.skills as AssessmentFormValues["skills"]) ?? {},
-        probeNaoIncluso: ref.probe_nao_incluso,
-        probeRows: (ref.probe_rows as AssessmentFormValues["probeRows"]) ?? initial.probeRows,
-        gallahue: ref.gallahue ?? "",
-        morgana: ref.morgana ?? "",
-        desenvolturas: (ref.desenvolturas as string[])?.length
-          ? (ref.desenvolturas as string[])
-          : [""],
-        dificuldades: (ref.dificuldades as string[])?.length
-          ? (ref.dificuldades as string[])
-          : [""],
-        meta: ref.meta ?? "",
-        consideracoes: "",
-      };
+      initial = avaliacaoToFormValues(ref as AvaliacaoRow, student.modelo);
+      initial.assessmentDate = todayBrazilISODate();
+      initial.consideracoes = "";
     }
   }
+
+  const status: AssessmentStatus = "draft";
 
   return (
     <AssessmentEditor
@@ -81,7 +66,7 @@ export default async function NewAssessmentPage({
       studentName={student.full_name}
       guardianPhone={student.guardian_phone}
       modelo={student.modelo}
-      status="draft"
+      status={status}
       initial={initial}
       reevaluationDates={reevaluationDates}
     />

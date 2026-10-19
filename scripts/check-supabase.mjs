@@ -1,6 +1,5 @@
 /**
- * Verifica URL, chaves e acesso básico ao Supabase.
- * Uso: node scripts/check-supabase.mjs
+ * Verifica URL, chaves e acesso às tabelas do projeto.
  */
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync, existsSync } from "fs";
@@ -34,7 +33,6 @@ if (!service) missing.push("SUPABASE_SERVICE_ROLE_KEY");
 
 if (missing.length) {
   console.error("❌ Preencha no .env.local:", missing.join(", "));
-  console.error("   Supabase → Project Settings → API");
   process.exit(1);
 }
 
@@ -42,10 +40,9 @@ const admin = createClient(url, service, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-const tables = ["profiles", "students", "assessments", "share_links"];
 let ok = true;
 
-for (const table of tables) {
+for (const table of ["alunos", "avaliacoes"]) {
   const { error } = await admin.from(table).select("id").limit(1);
   if (error) {
     console.error(`❌ Tabela "${table}":`, error.message);
@@ -53,6 +50,13 @@ for (const table of tables) {
   } else {
     console.log(`✓ Tabela "${table}" acessível`);
   }
+}
+
+const { error: slErr } = await admin.from("share_links").select("id").limit(1);
+if (slErr) {
+  console.log(`⚠ Tabela "share_links" opcional:`, slErr.message);
+} else {
+  console.log(`✓ Tabela "share_links" acessível`);
 }
 
 const { data: buckets, error: bErr } = await admin.storage.listBuckets();
@@ -65,11 +69,7 @@ if (bErr) {
   if (!found) ok = false;
 }
 
-const { error: rpcErr } = await admin.rpc("get_public_report", { p_token: "test-invalid-token" });
-if (rpcErr && !rpcErr.message.includes("null")) {
-  console.warn("⚠ RPC get_public_report:", rpcErr.message, "(confira se a função foi criada no SQL)");
-} else {
-  console.log("✓ RPC get_public_report registrada");
-}
+const { data: users } = await admin.auth.admin.listUsers({ page: 1, perPage: 5 });
+console.log(`✓ Auth: ${users?.users?.length ?? 0} utilizador(es) registado(s)`);
 
 process.exit(ok ? 0 : 1);

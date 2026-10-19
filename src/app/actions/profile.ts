@@ -11,10 +11,10 @@ export async function saveProfileSettings(settings: ProfileSettings) {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Não autenticado.");
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({ settings })
-    .eq("id", user.id);
+  const { error } = await supabase.from("profiles").upsert({
+    id: user.id,
+    settings,
+  });
   if (error) throw new Error(error.message);
   revalidatePath("/admin/configuracoes");
 }
