@@ -50,7 +50,7 @@ export default async function EditAssessmentPage({
       assessmentId={id}
       modelo={modelo}
       status={mapAssessmentStatus(dq)}
-      initial={avaliacaoToFormValues(av, modelo)}
+      initial={avaliacaoToFormValues(av)}
       reevaluationDates={reevaluationDates}
     />
   );

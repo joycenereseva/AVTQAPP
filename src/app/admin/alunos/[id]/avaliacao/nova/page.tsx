@@ -52,7 +52,7 @@ export default async function NewAssessmentPage({
   if (fromAssessmentId) {
     const { data: ref } = await supabase.from("avaliacoes").select("*").eq("id", fromAssessmentId).single();
     if (ref) {
-      initial = avaliacaoToFormValues(ref as AvaliacaoRow, student.modelo);
+      initial = avaliacaoToFormValues(ref as AvaliacaoRow);
       initial.assessmentDate = todayBrazilISODate();
       initial.consideracoes = "";
     }

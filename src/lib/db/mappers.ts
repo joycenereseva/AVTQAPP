@@ -120,7 +120,7 @@ export function mergeDadosQualitativos(
   };
 }
 
-export function avaliacaoToFormValues(row: AvaliacaoRow, fallbackModelo: AssessmentModel): AssessmentFormValues {
+export function avaliacaoToFormValues(row: AvaliacaoRow): AssessmentFormValues {
   const dq = mergeDadosQualitativos(row);
   return {
     referenceMonth: row.mes_referencia,
