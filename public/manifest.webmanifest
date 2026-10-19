@@ -1,0 +1,24 @@
+{
+  "name": "Avaliação Técnica — Natação Particular",
+  "short_name": "Avaliação Técnica",
+  "description": "Gerenciamento de avaliações técnicas — Prof.ª Joyce Neres",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#F7F8FA",
+  "theme_color": "#115F76",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

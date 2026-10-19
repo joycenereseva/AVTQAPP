@@ -1,0 +1,60 @@
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --teal-dark: #115f76;
+  --teal-mid: #0e5170;
+  --teal: #1a7a9a;
+  --teal-light: #5aaec4;
+  --teal-pale: #e7eff2;
+  --gray-bg: #f7f8fa;
+  --gray-border: #e2e8f0;
+  --gray-text: #64748b;
+  --text: #1a202c;
+  --danger: #e53e3e;
+  --background: var(--gray-bg);
+  --foreground: var(--text);
+}
+
+body {
+  font-family: "DM Sans", sans-serif;
+  background: var(--gray-bg);
+  color: var(--text);
+}
+
+.font-brand {
+  font-family: "Syne", sans-serif;
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-[var(--gray-border)] bg-white shadow-sm;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-[var(--teal-dark)] text-white hover:bg-[var(--teal-mid)];
+  }
+  .btn-secondary {
+    @apply border-[1.5px] border-[var(--teal-dark)] bg-white text-[var(--teal-dark)] hover:bg-[var(--teal-pale)];
+  }
+  .btn-danger {
+    @apply bg-[var(--danger)] text-white hover:bg-red-700;
+  }
+  .btn-ghost {
+    @apply text-[var(--gray-text)] hover:bg-[var(--gray-border)] hover:text-[var(--text)];
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+  .form-control {
+    @apply w-full rounded-lg border-[1.5px] border-[var(--gray-border)] bg-white px-3 py-2.5 text-sm outline-none focus:border-[var(--teal)];
+  }
+  .form-label {
+    @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--teal-dark)];
+  }
+}
