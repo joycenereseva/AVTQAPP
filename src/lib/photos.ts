@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { STUDENT_PHOTOS_BUCKET } from "@/lib/supabase/storage";
 
 export async function signedStudentPhotoUrl(
   photoPath: string | null | undefined,
@@ -8,7 +9,7 @@ export async function signedStudentPhotoUrl(
   try {
     const admin = createAdminClient();
     const { data, error } = await admin.storage
-      .from("student-photos")
+      .from(STUDENT_PHOTOS_BUCKET)
       .createSignedUrl(photoPath, expiresIn);
     if (error) return null;
     return data.signedUrl;

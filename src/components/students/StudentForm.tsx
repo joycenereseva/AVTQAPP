@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveStudent, updateStudentPhoto } from "@/app/actions/students";
 import { createClient } from "@/lib/supabase/client";
+import { STUDENT_PHOTOS_BUCKET } from "@/lib/supabase/storage";
 import type { AssessmentModel, DbStudent, StudentStatus } from "@/lib/types/database";
 import { StudentAvatar } from "@/components/students/StudentAvatar";
 
@@ -67,14 +68,16 @@ export function StudentForm({ student, photoSignedUrl }: Props) {
     const ext = file.name.split(".").pop() || "jpg";
     const path = `${user.id}/${student.id}.${ext}`;
     const { error: upErr } = await supabase.storage
-      .from("student-photos")
+      .from(STUDENT_PHOTOS_BUCKET)
       .upload(path, file, { upsert: true, contentType: file.type });
     if (upErr) {
       setError(upErr.message);
       return;
     }
     await updateStudentPhoto(student.id, path);
-    const { data } = await supabase.storage.from("student-photos").createSignedUrl(path, 3600);
+    const { data } = await supabase.storage
+      .from(STUDENT_PHOTOS_BUCKET)
+      .createSignedUrl(path, 3600);
     setPreviewUrl(data?.signedUrl ?? null);
     router.refresh();
   };

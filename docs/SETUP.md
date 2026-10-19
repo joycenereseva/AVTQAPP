@@ -5,7 +5,7 @@
 1. Crie um projeto em [Supabase](https://supabase.com).
 2. Em **SQL Editor**, execute o arquivo `supabase/migrations/20260319130000_initial_schema.sql` (ou use Supabase CLI: `supabase db push`).
 3. Em **Authentication → Users**, crie o usuário da professora (e-mail + senha).
-4. Confirme o bucket `student-photos` em **Storage** (criado pela migration).
+4. Confirme o bucket **`fotos-alunos`** em **Storage** (ou defina `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET`).
 5. Copie **Project URL** e **anon key** para `.env.local`.
 6. Copie **service_role** apenas para variáveis de ambiente do servidor (Vercel), nunca para o cliente.
 
