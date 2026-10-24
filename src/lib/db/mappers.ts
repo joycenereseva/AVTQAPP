@@ -165,10 +165,12 @@ export function formToAvaliacaoPayload(
     probe_rows: input.probeRows,
     probe_total: probeTotal,
   };
+  const statusDb = toAssessmentStatusDb(input.status);
   return {
     aluno_id: input.studentId,
     mes_referencia: input.referenceMonth,
     data_avaliacao: input.assessmentDate,
+    status: statusDb,
     dados_qualitativos: dq,
     classificacao_teorica: input.gallahue || null,
     estagio_aprendizagem: input.morgana || null,
