@@ -8,6 +8,8 @@ import {
   type ProbeRow,
 } from "@/lib/assessment-form";
 import { StudentAvatar } from "@/components/students/StudentAvatar";
+import { ReportBrandHeader } from "@/components/report/ReportBrandHeader";
+import { formatBrDate } from "@/lib/format-date";
 import { calcAgeFromBirthDate } from "@/lib/utils";
 
 type Props = {
@@ -54,8 +56,14 @@ export function PublicReportView({ data, photoUrl }: Props) {
   const dateLabels = ["Avaliado", "Reavaliado", "Reavaliado", "Reavaliado"];
 
   return (
-    <div className="mx-auto max-w-[640px] pb-8">
-      <div className="bg-gradient-to-br from-[var(--teal-dark)] to-[var(--teal)] px-4 pb-6 pt-5 text-white">
+    <div className="report-document mx-auto max-w-[640px] bg-[#e7eff2] pb-8">
+      <ReportBrandHeader />
+      <div
+        className="report-hero px-4 pb-6 pt-5 text-white"
+        style={{
+          background: "linear-gradient(135deg, #115f76 0%, #1a7a9a 100%)",
+        }}
+      >
         <div className="flex items-center gap-3.5">
           <StudentAvatar
             name={student.nome}
@@ -69,7 +77,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
               {age !== "—" ? `${age} anos` : "—"} · {student.schedule || "—"}
             </p>
             <span className="mt-2 inline-block rounded-full bg-white/20 px-2.5 py-1 text-xs font-semibold">
-              {ev.mes} · {ev.data}
+              {ev.mes} · {formatBrDate(ev.data)}
             </span>
           </div>
         </div>
@@ -82,7 +90,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
           return (
             <div key={i} className={active ? "text-[var(--teal-dark)]" : "text-[var(--gray-text)]"}>
               <strong className="block text-[10px] uppercase">{label}</strong>
-              <span className={active ? "font-bold" : ""}>{d}</span>
+              <span className={active ? "font-bold" : ""}>{formatBrDate(d)}</span>
             </div>
           );
         })}
@@ -94,9 +102,9 @@ export function PublicReportView({ data, photoUrl }: Props) {
         return (
           <section
             key={sec.title}
-            className="mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm"
+            className="report-section mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm"
           >
-            <div className="bg-[var(--teal-dark)] px-3.5 py-2.5 text-center text-xs font-bold uppercase tracking-wide text-white">
+            <div className="report-section-title bg-[#115f76] px-3.5 py-2.5 text-center text-xs font-bold uppercase tracking-wide text-white">
               {sec.title}
             </div>
             {allNtnav ? (
@@ -122,7 +130,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
                     );
                   })}
                 </div>
-                <div className="hidden w-[38%] max-w-[150px] border-l border-[#c8dde8] bg-[#eef4f8] p-2 text-[10px] leading-snug sm:block">
+                <div className="report-nomenclature hidden w-[38%] max-w-[150px] border-l border-[#c8dde8] bg-[#eef4f8] p-2 text-[10px] leading-snug sm:block print:block">
                   <div className="mb-1 border-b border-[#c8dde8] pb-1 text-[9px] font-bold uppercase text-[var(--teal-dark)]">
                     Nomenclatura
                   </div>
@@ -140,7 +148,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
 
       {ev.probeNaoIncluso ? (
         <div className="mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm">
-          <div className="bg-[var(--teal-dark)] px-3.5 py-2.5 text-sm font-bold text-white">
+          <div className="report-section-title bg-[#115f76] px-3.5 py-2.5 text-sm font-bold text-white">
             Prova
           </div>
           <div className="p-3 text-center text-sm font-bold text-[#c0392b]">
@@ -149,7 +157,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
         </div>
       ) : (
         <div className="mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm">
-          <div className="bg-[var(--teal-dark)] px-3.5 py-2.5 text-sm font-bold text-white">
+          <div className="report-section-title bg-[#115f76] px-3.5 py-2.5 text-sm font-bold text-white">
             Prova{" "}
             <small className="block font-normal opacity-80">
               Média total: {ev.probeTotal || "—"}
@@ -185,7 +193,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
       ].map(([title, body, sub]) =>
         body ? (
           <div key={title as string} className="mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm">
-            <div className="bg-[var(--teal-dark)] px-3.5 py-2.5 text-sm font-bold text-white">
+            <div className="report-section-title bg-[#115f76] px-3.5 py-2.5 text-sm font-bold text-white">
               {title}
               {sub ? <small className="mt-0.5 block font-normal opacity-80">{sub}</small> : null}
             </div>
@@ -196,7 +204,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
 
       {ev.desenvolturas?.length ? (
         <div className="mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm">
-          <div className="bg-[var(--teal-dark)] px-3.5 py-2.5 text-sm font-bold text-white">
+          <div className="report-section-title bg-[#115f76] px-3.5 py-2.5 text-sm font-bold text-white">
             Desenvolturas
           </div>
           <ul className="list-disc p-3.5 pl-8 text-[15px]">
@@ -211,7 +219,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
 
       {ev.dificuldades?.length ? (
         <div className="mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm">
-          <div className="bg-[var(--teal-dark)] px-3.5 py-2.5 text-sm font-bold text-white">
+          <div className="report-section-title bg-[#115f76] px-3.5 py-2.5 text-sm font-bold text-white">
             Dificuldades observadas
           </div>
           <ul className="list-disc p-3.5 pl-8 text-[15px]">
@@ -224,7 +232,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
         </div>
       ) : null}
 
-      <footer className="mx-3 mt-5 rounded-[10px] bg-[var(--teal-dark)] p-3.5 text-center text-xs leading-relaxed text-white/90">
+      <footer className="report-footer mx-3 mt-5 rounded-[10px] bg-[#115f76] p-3.5 text-center text-xs leading-relaxed text-white/90">
         <strong>{config.nome || "Prof.ª Joyce Neres"}</strong>
         <br />
         CREF {config.cref || "—"} · {config.tel || ""}

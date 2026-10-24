@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -46,6 +46,16 @@ export function AssessmentEditor({
   const [shareUrl, setShareUrl] = useState<string | null>(existingSharePath ?? null);
   const [pending, startTransition] = useTransition();
   const savingRef = useRef(false);
+
+  useEffect(() => {
+    if (!assessmentId || shareUrl) return;
+    try {
+      const saved = sessionStorage.getItem(`avtq-share-${assessmentId}`);
+      if (saved) setShareUrl(saved);
+    } catch {
+      /* ignore */
+    }
+  }, [assessmentId, shareUrl]);
 
   const persist = (nextStatus: AssessmentStatus) => {
     if (savingRef.current) return;
@@ -121,7 +131,12 @@ export function AssessmentEditor({
           process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || window.location.origin;
         const url = `${base}/avaliacao/${token}`;
         setShareUrl(url);
-        setMessage("Link gerado. Copie ou envie pelo WhatsApp.");
+        try {
+          sessionStorage.setItem(`avtq-share-${assessmentId}`, url);
+        } catch {
+          /* ignore */
+        }
+        setMessage("Link gerado. Copie ou envie pelo WhatsApp — o responsável abre e rola no celular.");
       } catch (e) {
         setError(e instanceof Error ? e.message : "Erro ao gerar link.");
       }
@@ -185,7 +200,7 @@ export function AssessmentEditor({
               className="btn btn-secondary"
               target="_blank"
             >
-              Gerar PDF
+              PDF / relatório
             </Link>
           )}
         </div>
@@ -199,6 +214,52 @@ export function AssessmentEditor({
       {error && (
         <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
           {error}
+        </div>
+      )}
+
+      {status === "finalized" && assessmentId && (
+        <div className="card mb-4 border-[#115f76]/25 bg-[#e7eff2] p-4">
+          <h2 className="font-brand text-lg font-bold text-[#115f76]">
+            Página para os pais (celular)
+          </h2>
+          <p className="mt-1 text-sm text-[var(--gray-text)]">
+            Gere um link único. O responsável toca no WhatsApp e vê a ficha completa em uma página
+            rolável — igual ao informativo do site, sem precisar instalar o app.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" className="btn btn-primary" disabled={pending} onClick={onShare}>
+              Gerar / renovar link
+            </button>
+            <Link
+              href={`/admin/avaliacoes/${assessmentId}/relatorio`}
+              className="btn btn-secondary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Pré-visualizar
+            </Link>
+            {shareUrl && (
+              <>
+                <button type="button" className="btn btn-secondary" onClick={copyLink}>
+                  Copiar link
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={openWhatsApp}>
+                  Enviar WhatsApp
+                </button>
+                <a
+                  href={shareUrl}
+                  className="btn btn-secondary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Abrir como os pais veem
+                </a>
+              </>
+            )}
+          </div>
+          {shareUrl && (
+            <p className="mt-2 break-all text-xs text-[var(--gray-text)]">{shareUrl}</p>
+          )}
         </div>
       )}
 
@@ -245,27 +306,7 @@ export function AssessmentEditor({
             </button>
           </>
         )}
-        {status === "finalized" && (
-          <>
-            <button type="button" className="btn btn-primary" disabled={pending} onClick={onShare}>
-              Gerar / renovar link
-            </button>
-            {shareUrl && (
-              <>
-                <button type="button" className="btn btn-secondary" onClick={copyLink}>
-                  Copiar link
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={openWhatsApp}>
-                  Compartilhar pelo WhatsApp
-                </button>
-              </>
-            )}
-          </>
-        )}
       </div>
-      {shareUrl && (
-        <p className="mt-2 break-all text-xs text-[var(--gray-text)]">{shareUrl}</p>
-      )}
     </div>
   );
 }

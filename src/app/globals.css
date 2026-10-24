@@ -58,3 +58,40 @@ body {
     @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-[var(--teal-dark)];
   }
 }
+
+/* Relatório / PDF — identidade websitenat (#115F76, Syne + DM Sans) */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    background: #e7eff2 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .report-document {
+    max-width: none !important;
+  }
+
+  .report-hero,
+  .report-section-title,
+  .report-footer {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .report-nomenclature {
+    display: block !important;
+    width: 38% !important;
+    max-width: 150px !important;
+  }
+
+  .report-section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

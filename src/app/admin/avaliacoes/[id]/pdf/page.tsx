@@ -7,5 +7,5 @@ export default async function AssessmentPdfPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  redirect(`/admin/avaliacoes/${id}/relatorio?print=1`);
+  redirect(`/admin/avaliacoes/${id}/relatorio`);
 }
