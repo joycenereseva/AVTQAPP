@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { APP_DISPLAY_NAME, APP_TAGLINE } from "@/lib/branding";
 
 type Props = {
   active?: "students" | "settings";
@@ -13,10 +14,10 @@ export function AppHeader({ active = "students" }: Props) {
         </div>
         <div>
           <div className="font-brand text-base font-bold tracking-wide text-white">
-            Avaliação Técnica
+            {APP_DISPLAY_NAME}
           </div>
           <div className="text-[11px] text-[var(--teal-light)]">
-            Natação Particular · Prof.ª Joyce Neres
+            {APP_TAGLINE}
           </div>
         </div>
       </div>

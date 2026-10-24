@@ -10,6 +10,7 @@ import {
 import { StudentAvatar } from "@/components/students/StudentAvatar";
 import { ReportBrandHeader } from "@/components/report/ReportBrandHeader";
 import { formatBrDate } from "@/lib/format-date";
+import { APP_DISPLAY_NAME } from "@/lib/branding";
 import { calcAgeFromBirthDate } from "@/lib/utils";
 
 type Props = {
@@ -240,7 +241,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
         {config.email || ""}
         <br />
         <span className="opacity-75">
-          Ficha de Avaliação Técnica Qualitativa · Natação Particular
+          {APP_DISPLAY_NAME} · Natação Particular
         </span>
       </footer>
     </div>

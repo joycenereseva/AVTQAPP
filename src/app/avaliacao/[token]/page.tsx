@@ -1,13 +1,14 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { PublicReportView } from "@/components/report/PublicReportView";
+import { APP_DISPLAY_NAME } from "@/lib/branding";
 import { fetchPublicReportByToken } from "@/lib/public-report";
 import { signedStudentPhotoUrl } from "@/lib/photos";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Avaliação Técnica",
+  title: APP_DISPLAY_NAME,
   robots: { index: false, follow: false },
 };
 

@@ -1,7 +1,7 @@
 {
-  "name": "Avaliação Técnica — Natação Particular",
-  "short_name": "Avaliação Técnica",
-  "description": "Gerenciamento de avaliações técnicas — Prof.ª Joyce Neres",
+  "name": "AVALIAÇÃO QUALITATIVA — Natação Particular",
+  "short_name": "AVALIAÇÃO QUALITATIVA",
+  "description": "Gerenciamento de avaliações qualitativas — Prof.ª Joyce Neres",
   "start_url": "/admin",
   "display": "standalone",
   "background_color": "#F7F8FA",

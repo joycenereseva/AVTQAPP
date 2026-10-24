@@ -1,3 +1,5 @@
+import { APP_DISPLAY_NAME } from "@/lib/branding";
+
 const AVATAR_URL =
   "https://joycenereseva.github.io/websitenat/assets/images/joyce-nav-avatar.jpg";
 
@@ -22,7 +24,7 @@ export function ReportBrandHeader() {
             Profª Joyce Neres
           </p>
           <p className="text-xs text-[#64748b]">
-            CREF/BA-022609 · Ficha de avaliação técnica qualitativa
+            CREF/BA-022609 · {APP_DISPLAY_NAME}
           </p>
         </div>
       </div>

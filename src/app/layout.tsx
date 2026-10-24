@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { APP_DISPLAY_NAME, APP_PAGE_TITLE } from "@/lib/branding";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Avaliação Técnica — Natação Particular",
-  description: "Gerenciamento de avaliações técnicas — Prof.ª Joyce Neres",
+  title: APP_PAGE_TITLE,
+  description: `Gerenciamento de ${APP_DISPLAY_NAME.toLowerCase()} — Prof.ª Joyce Neres`,
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "Avaliação Técnica",
+    title: APP_DISPLAY_NAME,
     statusBarStyle: "default",
   },
   robots: { index: false, follow: false },
