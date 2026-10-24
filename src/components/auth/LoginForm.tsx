@@ -3,6 +3,7 @@
 import { use, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { APP_DISPLAY_NAME } from "@/lib/branding";
 
 type Props = {
   searchParams: Promise<{ missing?: string; next?: string }>;
@@ -37,7 +38,7 @@ export function LoginForm({ searchParams }: Props) {
   return (
     <div className="card w-full max-w-md p-8">
       <h1 className="font-brand text-xl font-bold text-[var(--teal-dark)]">
-        Avaliação Técnica
+        {APP_DISPLAY_NAME}
       </h1>
       <p className="mb-6 text-sm text-[var(--gray-text)]">
         Área exclusiva da Prof.ª Joyce Neres

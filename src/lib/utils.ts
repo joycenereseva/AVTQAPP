@@ -1,4 +1,5 @@
 import { differenceInYears } from "date-fns";
+import { APP_DISPLAY_NAME } from "@/lib/branding";
 
 export function cn(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(" ");
@@ -37,5 +38,5 @@ export function buildShareMessage(
   assessmentDate: string,
   link: string,
 ): string {
-  return `Olá! A avaliação técnica de natação de ${studentName}, referente a ${referenceMonth}/${assessmentDate.slice(0, 4)}, está disponível neste link: ${link}\n\nAbra no celular e role a página para ver a ficha completa.`;
+  return `Olá! A ${APP_DISPLAY_NAME} de natação de ${studentName}, referente a ${referenceMonth}/${assessmentDate.slice(0, 4)}, está disponível neste link: ${link}\n\nAbra no celular e role a página para ver a ficha completa.`;
 }
