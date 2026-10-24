@@ -73,14 +73,17 @@ export default async function AdminReportPreviewPage({
 
   const photoUrl = await signedStudentPhotoUrl(student.photo_path);
 
+  const safeName = student.full_name.replace(/[^\w\s-]/g, "").replace(/\s+/g, "_");
+  const pdfFileName = `Avaliacao_${safeName}_${av.data_avaliacao.slice(0, 10)}.pdf`;
+
   return (
     <div>
-      <div className="sticky top-0 z-10 flex items-center gap-2 bg-[var(--teal-dark)] px-4 py-2 text-sm text-white">
+      <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 bg-[#115f76] px-4 py-2 text-sm text-white print:hidden">
         <Link href={`/admin/avaliacoes/${id}`} className="underline opacity-90">
           ← Voltar à edição
         </Link>
-        <span className="flex-1 opacity-75">Pré-visualização do relatório</span>
-        <PrintToolbar />
+        <span className="flex-1 opacity-75">Pré-visualização (igual à página dos pais)</span>
+        <PrintToolbar pdfFileName={pdfFileName} />
       </div>
       <div className="bg-[#e7eff2]">
         <PublicReportView data={payload} photoUrl={photoUrl} />

@@ -37,5 +37,5 @@ export function buildShareMessage(
   assessmentDate: string,
   link: string,
 ): string {
-  return `Olá! A avaliação técnica de natação de ${studentName}, referente a ${referenceMonth}/${assessmentDate.slice(0, 4)}, está disponível neste link: ${link}. Você pode abrir e consultar os resultados pelo celular.`;
+  return `Olá! A avaliação técnica de natação de ${studentName}, referente a ${referenceMonth}/${assessmentDate.slice(0, 4)}, está disponível neste link: ${link}\n\nAbra no celular e role a página para ver a ficha completa.`;
 }
