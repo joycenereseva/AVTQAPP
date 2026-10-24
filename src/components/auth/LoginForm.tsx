@@ -44,7 +44,11 @@ export function LoginForm({ searchParams }: Props) {
       </p>
       {params.missing === "supabase" && (
         <div className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-          Configure as variáveis do Supabase no ambiente antes de acessar o painel.
+          No Vercel (Production), defina{" "}
+          <strong>NEXT_PUBLIC_SUPABASE_URL</strong> e{" "}
+          <strong>NEXT_PUBLIC_SUPABASE_ANON_KEY</strong> (ou{" "}
+          <strong>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</strong>), além de{" "}
+          <strong>SUPABASE_SERVICE_ROLE_KEY</strong>, e faça redeploy.
         </div>
       )}
       {error && (

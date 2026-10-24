@@ -29,9 +29,18 @@ Acesse `http://localhost:3000/login`.
 ## 4. Deploy na Vercel
 
 1. Importe o repositório `joycenereseva/AVTQAPP`.
-2. Configure as mesmas variáveis de ambiente (incluindo `SUPABASE_SERVICE_ROLE_KEY`).
-3. Defina `NEXT_PUBLIC_APP_URL` com a URL de produção.
-4. Deploy.
+2. Em **Settings → Environment Variables** (ambiente **Production**), configure:
+
+   | Variável | Onde obter |
+   |----------|------------|
+   | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API → URL |
+   | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | API → `anon` **public** (ou use `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` com a chave publishable) |
+   | `SUPABASE_SERVICE_ROLE_KEY` | API → `service_role` **secret** (nunca no cliente) |
+   | `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET` | `fotos-alunos` |
+   | `NEXT_PUBLIC_APP_URL` | `https://avtqapp.vercel.app` |
+
+3. **Redeploy** após salvar variáveis (Deployments → ⋯ → Redeploy, de preferência sem cache).
+4. Confirme: `GET https://avtqapp.vercel.app/api/health` deve retornar `"ok": true` e `/admin` deve redirecionar para `/login?next=%2Fadmin` (não `missing=supabase`).
 
 ## 5. PWA (Android / iOS)
 
