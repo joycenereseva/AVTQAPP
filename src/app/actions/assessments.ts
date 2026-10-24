@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import type { ProbeRow, SkillsMap } from "@/lib/assessment-form";
 import { generateShareToken, hashShareToken } from "@/lib/share-token";
 import type { AssessmentModel, AssessmentStatus } from "@/lib/types/database";
@@ -94,7 +95,7 @@ export async function finalizeAssessment(assessmentId: string, studentId: string
 
   const { error } = await supabase
     .from("avaliacoes")
-    .update({ dados_qualitativos: nextDq })
+    .update({ dados_qualitativos: nextDq, status: "finalizada" })
     .eq("id", assessmentId);
   if (error) throw new Error(error.message);
   revalidatePath(`/admin/alunos/${studentId}`);
@@ -130,14 +131,25 @@ export async function createShareLink(assessmentId: string, studentId: string) {
     .eq("id", assessmentId);
   if (upErr) throw new Error(upErr.message);
 
-  // Opcional se a tabela share_links existir
-  const { error: linkErr } = await supabase.from("share_links").insert({
-    avaliacao_id: assessmentId,
-    token_hash: tokenHash,
-    revoked_at: null,
-  });
-  if (linkErr && !linkErr.message.includes("Could not find")) {
-    /* share_links opcional — token já está em dados_qualitativos */
+  try {
+    const admin = createAdminClient();
+    await admin.from("share_links").upsert(
+      {
+        avaliacao_id: assessmentId,
+        token_hash: tokenHash,
+        revoked_at: null,
+      },
+      { onConflict: "token_hash" },
+    );
+  } catch {
+    const { error: linkErr } = await supabase.from("share_links").insert({
+      avaliacao_id: assessmentId,
+      token_hash: tokenHash,
+      revoked_at: null,
+    });
+    if (linkErr && !linkErr.message.includes("Could not find")) {
+      /* token já está em dados_qualitativos */
+    }
   }
 
   revalidatePath(`/admin/avaliacoes/${assessmentId}`);

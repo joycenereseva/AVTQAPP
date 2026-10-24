@@ -1,5 +1,3 @@
-import { APP_DISPLAY_NAME } from "@/lib/branding";
-
 const AVATAR_URL =
   "https://joycenereseva.github.io/websitenat/assets/images/joyce-nav-avatar.jpg";
 
@@ -23,9 +21,7 @@ export function ReportBrandHeader() {
           <p className="font-brand text-base font-bold leading-tight text-[#1a202c]">
             Profª Joyce Neres
           </p>
-          <p className="text-xs text-[#64748b]">
-            CREF/BA-022609 · {APP_DISPLAY_NAME}
-          </p>
+          <p className="text-xs text-[#64748b]">CREF/BA-022609 · Natação Particular</p>
         </div>
       </div>
     </header>
