@@ -9,7 +9,7 @@ export function AdminStudentSearch({ initialQuery }: { initialQuery: string }) {
 
   return (
     <form
-      className="relative mb-6"
+      className="search-bar"
       onSubmit={(e) => {
         e.preventDefault();
         const params = new URLSearchParams();

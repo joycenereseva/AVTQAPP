@@ -1,30 +1,20 @@
+"use client";
+
 import Link from "next/link";
-import { APP_DISPLAY_NAME, APP_TAGLINE } from "@/lib/branding";
+import { usePathname } from "next/navigation";
+import { BrandMark } from "@/components/brand/BrandMark";
 
-type Props = {
-  active?: "students" | "settings";
-};
+export function AppHeader() {
+  const pathname = usePathname();
+  const active = pathname.startsWith("/admin/configuracoes") ? "settings" : "students";
 
-export function AppHeader({ active = "students" }: Props) {
   return (
-    <header className="sticky top-0 z-50 flex h-16 items-center justify-between bg-[var(--teal-dark)] px-4 shadow-md md:px-8">
-      <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--teal-light)] text-lg">
-          🏊
-        </div>
-        <div>
-          <div className="font-brand text-base font-bold tracking-wide text-white">
-            {APP_DISPLAY_NAME}
-          </div>
-          <div className="text-[11px] text-[var(--teal-light)]">
-            {APP_TAGLINE}
-          </div>
-        </div>
-      </div>
+    <header className="app-header sticky top-0 z-50 flex h-16 items-center justify-between bg-[var(--teal-dark)] px-4 md:px-8">
+      <BrandMark variant="header" />
       <nav className="flex gap-1">
         <Link
           href="/admin"
-          className={`rounded-lg px-4 py-2 text-sm font-medium ${
+          className={`rounded-[var(--radius-sm)] px-4 py-2 text-[13px] font-medium transition-colors ${
             active === "students"
               ? "bg-white/15 text-white"
               : "text-white/70 hover:bg-white/10 hover:text-white"
@@ -34,7 +24,7 @@ export function AppHeader({ active = "students" }: Props) {
         </Link>
         <Link
           href="/admin/configuracoes"
-          className={`rounded-lg px-4 py-2 text-sm font-medium ${
+          className={`rounded-[var(--radius-sm)] px-4 py-2 text-[13px] font-medium transition-colors ${
             active === "settings"
               ? "bg-white/15 text-white"
               : "text-white/70 hover:bg-white/10 hover:text-white"

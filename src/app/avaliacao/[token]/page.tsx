@@ -24,7 +24,7 @@ export default async function PublicAssessmentPage({
   const photoUrl = await signedStudentPhotoUrl(data.student.photo_url);
 
   return (
-    <div className="min-h-screen bg-[#e7eff2]">
+    <div className="min-h-screen bg-[var(--teal-pale)]">
       <PublicReportView data={data} photoUrl={photoUrl} />
     </div>
   );
