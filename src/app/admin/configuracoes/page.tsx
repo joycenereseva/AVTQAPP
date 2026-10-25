@@ -29,13 +29,15 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6">
-      <h1 className="font-brand mb-2 text-2xl font-bold text-[var(--teal-dark)]">
-        Configurações
-      </h1>
-      <p className="mb-6 text-sm text-[var(--gray-text)]">
-        Identificação profissional exibida no relatório e no rodapé público.
-      </p>
+    <div className="mx-auto max-w-[960px] px-4 py-8 md:px-8">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Configurações</h1>
+          <p className="page-subtitle">
+            Identificação profissional exibida no relatório e no rodapé público.
+          </p>
+        </div>
+      </div>
       <SettingsForm initial={settings} />
     </div>
   );

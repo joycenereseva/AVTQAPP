@@ -102,11 +102,9 @@ export function AssessmentForm({
 
   return (
     <div className="space-y-4">
-      <section className="card overflow-hidden">
-        <div className="bg-[var(--teal-pale)] px-4 py-2.5 text-sm font-semibold text-[var(--teal-dark)]">
-          Identificação
-        </div>
-        <div className="space-y-3 p-4">
+      <section className="eval-section">
+        <div className="eval-section-header">Identificação</div>
+        <div className="eval-section-body space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label className="form-label" htmlFor="eval-mes">
@@ -163,38 +161,38 @@ export function AssessmentForm({
         );
         const opts = optionsForField(sec.title, modelo);
         return (
-          <section key={sec.title} className="card overflow-hidden">
-            <div className="flex flex-wrap items-center justify-between gap-2 bg-[var(--teal-pale)] px-4 py-2.5">
-              <span className="text-sm font-semibold text-[var(--teal-dark)]">{sec.title}</span>
+          <section key={sec.title} className="eval-section">
+            <div className="eval-section-header flex flex-wrap items-center justify-between gap-2 normal-case tracking-normal">
+              <span>{sec.title}</span>
               {!readOnly && (
-                <label className="flex cursor-pointer items-center gap-2 text-[11px] font-medium text-[var(--teal-dark)]">
+                <label className="flex cursor-pointer items-center gap-2 text-[10px] font-medium normal-case tracking-normal text-white/90">
                   <input
                     type="checkbox"
                     checked={allNtnav}
                     onChange={(e) =>
                       toggleSectionNtnav(sec.title, sec.fields, e.target.checked)
                     }
-                    className="h-3.5 w-3.5 accent-[var(--teal-dark)]"
+                    className="h-3.5 w-3.5 accent-white"
                   />
                   Não incluso nesta avaliação
                 </label>
               )}
             </div>
-            <div className="p-4">
+            <div className="eval-section-body">
               {allNtnav && (
-                <div className="mb-3 rounded-md bg-red-50 px-3 py-2 text-center text-sm font-bold text-[#c0392b]">
+                <div className="mb-3 rounded-md bg-[var(--danger-light)] px-3 py-2 text-center text-sm font-bold text-[var(--danger)]">
                   Não incluso nesta avaliação
                 </div>
               )}
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="skills-grid">
                 {sec.fields.map((f) => {
                   const key = skillKey(sec.title, f);
                   const val = values.skills[key] ?? "";
                   return (
-                    <div key={key} className="flex flex-col gap-1">
-                      <span className="text-xs font-medium text-slate-700">{f}</span>
+                    <div key={key} className="skill-item">
+                      <span className="skill-label">{f}</span>
                       <select
-                        className="form-control py-2 text-xs"
+                        className="skill-select"
                         disabled={readOnly}
                         value={val}
                         onChange={(e) => setSkill(key, e.target.value)}
@@ -216,11 +214,9 @@ export function AssessmentForm({
         );
       })}
 
-      <section className="card overflow-hidden">
-        <div className="bg-[var(--teal-pale)] px-4 py-2.5 text-sm font-semibold text-[var(--teal-dark)]">
-          PROVA
-        </div>
-        <div className="p-4">
+      <section className="eval-section">
+        <div className="eval-section-header">Prova</div>
+        <div className="eval-section-body">
           <label className="mb-3 flex cursor-pointer items-center gap-2 text-sm font-medium text-[var(--teal-dark)]">
             <input
               type="checkbox"
@@ -324,11 +320,9 @@ export function AssessmentForm({
         ["Meta Reavaliativa", "meta", 3],
         ["Considerações Gerais", "consideracoes", 4],
       ].map(([title, field, rows]) => (
-        <section key={field as string} className="card overflow-hidden">
-          <div className="bg-[var(--teal-pale)] px-4 py-2.5 text-sm font-semibold text-[var(--teal-dark)]">
-            {title}
-          </div>
-          <div className="p-4">
+        <section key={field as string} className="eval-section">
+          <div className="eval-section-header">{title}</div>
+          <div className="eval-section-body">
             <textarea
               className="form-control min-h-[80px]"
               rows={rows as number}
@@ -340,11 +334,9 @@ export function AssessmentForm({
         </section>
       ))}
 
-      <section className="card overflow-hidden">
-        <div className="bg-[var(--teal-pale)] px-4 py-2.5 text-sm font-semibold text-[var(--teal-dark)]">
-          Observações Gerais Individuais
-        </div>
-        <div className="grid gap-4 p-4 md:grid-cols-2">
+      <section className="eval-section">
+        <div className="eval-section-header">Observações gerais individuais</div>
+        <div className="eval-section-body grid gap-4 md:grid-cols-2">
           {(
             [
               ["Desenvolturas", "desenvolturas"],

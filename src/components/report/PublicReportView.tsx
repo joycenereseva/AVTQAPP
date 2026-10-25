@@ -57,14 +57,14 @@ export function PublicReportView({ data, photoUrl }: Props) {
   const dateLabels = ["Avaliado", "Reavaliado", "Reavaliado", "Reavaliado"];
 
   return (
-    <div className="report-document mx-auto max-w-[640px] bg-[#e7eff2] pb-8">
+    <div className="report-document mx-auto max-w-[640px] pb-8">
       <ReportBrandHeader />
-      <div
-        className="report-hero px-4 pb-6 pt-5 text-white"
-        style={{
-          background: "linear-gradient(135deg, #115f76 0%, #1a7a9a 100%)",
-        }}
-      >
+      <div className="report-ficha-bar">
+        <p className="font-brand text-[11px] font-bold uppercase tracking-wide text-[var(--teal-dark)]">
+          {APP_DISPLAY_NAME}
+        </p>
+      </div>
+      <div className="report-hero px-4 pb-6 pt-5 text-white">
         <div className="flex items-center gap-3.5">
           <StudentAvatar
             name={student.nome}
@@ -84,7 +84,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-1.5 border-b border-[#c8dde8] bg-white px-4 py-3 text-center text-[11px]">
+      <div className="grid grid-cols-4 gap-1.5 border-b border-[var(--report-border)] bg-white px-4 py-3 text-center text-[11px]">
         {dateLabels.map((label, i) => {
           const d = avDates[i] ?? "—";
           const active = i === 0 || d === ev.data;
@@ -105,7 +105,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
             key={sec.title}
             className="report-section mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm"
           >
-            <div className="report-section-title bg-[#115f76] px-3.5 py-2.5 text-center text-xs font-bold uppercase tracking-wide text-white">
+            <div className="report-section-title text-center">
               {sec.title}
             </div>
             {allNtnav ? (
@@ -131,8 +131,8 @@ export function PublicReportView({ data, photoUrl }: Props) {
                     );
                   })}
                 </div>
-                <div className="report-nomenclature hidden w-[38%] max-w-[150px] border-l border-[#c8dde8] bg-[#eef4f8] p-2 text-[10px] leading-snug sm:block print:block">
-                  <div className="mb-1 border-b border-[#c8dde8] pb-1 text-[9px] font-bold uppercase text-[var(--teal-dark)]">
+                <div className="report-nomenclature hidden w-[38%] max-w-[150px] border-l border-[var(--report-border)] bg-[var(--teal-pale)] p-2 text-[10px] leading-snug sm:block print:block">
+                  <div className="mb-1 border-b border-[var(--report-border)] pb-1 text-[9px] font-bold uppercase text-[var(--teal-dark)]">
                     Nomenclatura
                   </div>
                   {nom.map(([k, desc]) => (
@@ -149,7 +149,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
 
       {ev.probeNaoIncluso ? (
         <div className="mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm">
-          <div className="report-section-title bg-[#115f76] px-3.5 py-2.5 text-sm font-bold text-white">
+          <div className="report-section-title text-sm">
             Prova
           </div>
           <div className="p-3 text-center text-sm font-bold text-[#c0392b]">
@@ -158,7 +158,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
         </div>
       ) : (
         <div className="mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm">
-          <div className="report-section-title bg-[#115f76] px-3.5 py-2.5 text-sm font-bold text-white">
+          <div className="report-section-title text-sm">
             Prova{" "}
             <small className="block font-normal opacity-80">
               Média total: {ev.probeTotal || "—"}
@@ -166,7 +166,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
           </div>
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-[#eef4f8] text-left text-xs text-[var(--teal-dark)]">
+              <tr className="bg-[var(--teal-pale)] text-left text-xs text-[var(--teal-dark)]">
                 <th className="px-3 py-2">Habilidade</th>
                 <th className="px-3 py-2">Pontuação</th>
               </tr>
@@ -194,7 +194,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
       ].map(([title, body, sub]) =>
         body ? (
           <div key={title as string} className="mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm">
-            <div className="report-section-title bg-[#115f76] px-3.5 py-2.5 text-sm font-bold text-white">
+            <div className="report-section-title text-sm">
               {title}
               {sub ? <small className="mt-0.5 block font-normal opacity-80">{sub}</small> : null}
             </div>
@@ -205,7 +205,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
 
       {ev.desenvolturas?.length ? (
         <div className="mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm">
-          <div className="report-section-title bg-[#115f76] px-3.5 py-2.5 text-sm font-bold text-white">
+          <div className="report-section-title text-sm">
             Desenvolturas
           </div>
           <ul className="list-disc p-3.5 pl-8 text-[15px]">
@@ -220,7 +220,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
 
       {ev.dificuldades?.length ? (
         <div className="mx-3 mt-3 overflow-hidden rounded-[10px] bg-white shadow-sm">
-          <div className="report-section-title bg-[#115f76] px-3.5 py-2.5 text-sm font-bold text-white">
+          <div className="report-section-title text-sm">
             Dificuldades observadas
           </div>
           <ul className="list-disc p-3.5 pl-8 text-[15px]">
@@ -233,7 +233,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
         </div>
       ) : null}
 
-      <footer className="report-footer mx-3 mt-5 rounded-[10px] bg-[#115f76] p-3.5 text-center text-xs leading-relaxed text-white/90">
+      <footer className="report-footer mx-3 mt-5 rounded-[10px] bg-[var(--teal-dark)] p-3.5 text-center text-xs leading-relaxed text-white/90">
         <strong>{config.nome || "Prof.ª Joyce Neres"}</strong>
         <br />
         CREF {config.cref || "—"} · {config.tel || ""}

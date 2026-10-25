@@ -37,12 +37,8 @@ export function LoginForm({ searchParams }: Props) {
 
   return (
     <div className="card w-full max-w-md p-8">
-      <h1 className="font-brand text-xl font-bold text-[var(--teal-dark)]">
-        {APP_DISPLAY_NAME}
-      </h1>
-      <p className="mb-6 text-sm text-[var(--gray-text)]">
-        Área exclusiva da Prof.ª Joyce Neres
-      </p>
+      <h1 className="page-title text-xl">Entrar</h1>
+      <p className="page-subtitle mb-6">Área exclusiva — {APP_DISPLAY_NAME}</p>
       {params.missing === "supabase" && (
         <div className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
           No Vercel (Production), defina{" "}

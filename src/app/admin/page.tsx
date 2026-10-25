@@ -51,11 +51,11 @@ export default async function AdminHomePage({
   );
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="mx-auto max-w-[960px] px-4 py-8 md:px-8">
+      <div className="page-header">
         <div>
-          <h1 className="font-brand text-2xl font-bold text-[var(--teal-dark)]">Alunos</h1>
-          <p className="text-sm text-[var(--gray-text)]">Cadastros e avaliações periódicas</p>
+          <h1 className="page-title">Alunos</h1>
+          <p className="page-subtitle">Cadastros e avaliações periódicas</p>
         </div>
         <Link href="/admin/alunos/novo" className="btn btn-primary">
           + Novo aluno
@@ -65,43 +65,46 @@ export default async function AdminHomePage({
       <AdminStudentSearch initialQuery={q ?? ""} />
 
       {cards.length === 0 ? (
-        <div className="card py-12 text-center text-[var(--gray-text)]">
-          <div className="mb-2 text-3xl">🏊</div>
-          <p>{q ? "Nenhum aluno encontrado." : "Nenhum aluno cadastrado."}</p>
+        <div className="empty-state card">
+          <div className="empty-state-icon">🏊</div>
+          <h3 className="font-medium text-[var(--text)]">
+            {q ? "Nenhum aluno encontrado" : "Nenhum aluno cadastrado"}
+          </h3>
+          <p className="mt-2 text-sm">{q ? "Tente outro termo na busca." : "Comece com + Novo aluno."}</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="students-grid">
           {cards.map(({ s, last, photoUrl }) => (
-            <article key={s.id} className="card flex flex-col p-4">
+            <article key={s.id} className="student-card">
               <div className="flex gap-3">
-                <StudentAvatar name={s.full_name} photoUrl={photoUrl} />
+                <StudentAvatar name={s.full_name} photoUrl={photoUrl} size="sm" />
                 <div className="min-w-0 flex-1">
-                  <h2 className="truncate font-semibold text-[var(--teal-dark)]">{s.full_name}</h2>
-                  <p className="text-xs text-[var(--gray-text)]">
+                  <h2 className="card-name truncate pr-14">{s.full_name}</h2>
+                  <p className="card-meta">
                     {calcAgeFromBirthDate(s.birth_date) !== "—"
                       ? `${calcAgeFromBirthDate(s.birth_date)} anos`
                       : "Idade não informada"}
                     {s.schedule ? ` · ${s.schedule}` : ""}
                   </p>
-                  <p className="mt-1 text-xs text-[var(--gray-text)]">
+                  <p className="card-last mt-2">
                     {last
                       ? `Última avaliação: ${last.data_avaliacao} · Nota ${probeTotalFromRow(last) ?? "—"}`
                       : "Nenhuma avaliação"}
                   </p>
                 </div>
               </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link href={`/admin/alunos/${s.id}`} className="btn btn-secondary btn-sm">
+              <div className="card-buttons">
+                <Link href={`/admin/alunos/${s.id}`} className="card-btn">
                   Histórico
                 </Link>
                 <Link
                   href={`/admin/alunos/${s.id}/avaliacao/nova`}
-                  className="btn btn-primary btn-sm"
+                  className="card-btn card-btn-primary"
                 >
                   Nova avaliação
                 </Link>
-                <Link href={`/admin/alunos/${s.id}/editar`} className="btn btn-ghost btn-sm">
-                  Editar
+                <Link href={`/admin/alunos/${s.id}/editar`} className="card-btn col-span-2">
+                  Editar cadastro
                 </Link>
               </div>
             </article>

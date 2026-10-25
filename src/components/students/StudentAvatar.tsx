@@ -36,7 +36,7 @@ export function StudentAvatar({ name, photoUrl, size = "md", className }: Props)
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-full border-2 border-[var(--teal)] bg-[var(--teal-pale)] font-semibold text-[var(--teal-dark)]",
+        "font-brand flex items-center justify-center rounded-full border-2 border-[var(--teal)] bg-[var(--teal-pale)] font-bold text-[var(--teal-dark)]",
         dim,
         className,
       )}
