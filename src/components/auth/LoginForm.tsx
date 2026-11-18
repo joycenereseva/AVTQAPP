@@ -3,6 +3,7 @@
 import { use, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { requestPasswordReset } from "@/app/actions/auth";
 import { APP_DISPLAY_NAME } from "@/lib/branding";
 
 type Props = {
@@ -43,12 +44,8 @@ export function LoginForm({ searchParams }: Props) {
     e.preventDefault();
     startTransition(async () => {
       try {
-        const supabase = createClient();
         const redirectTo = `${window.location.origin}/auth/callback?type=recovery`;
-        const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo,
-        });
-        if (resetErr) throw resetErr;
+        await requestPasswordReset(email, redirectTo);
         setResetSent(true);
         setError(null);
       } catch (err) {
