@@ -3,7 +3,7 @@
 ## 1. Supabase
 
 1. Crie um projeto em [Supabase](https://supabase.com).
-2. Em **SQL Editor**, execute o arquivo `supabase/migrations/20260319130000_initial_schema.sql` (ou use Supabase CLI: `supabase db push`).
+2. Em **SQL Editor**, execute as migrations em `supabase/migrations/` (mínimo: `20260319150000_extend_alunos_avaliacoes.sql` e **`20260324193000_get_public_avaliacao_report.sql`** para o link público `/avaliacao/TOKEN`).
 3. Em **Authentication → Users**, crie o usuário da professora (e-mail + senha).
 4. Confirme o bucket **`fotos-alunos`** em **Storage** (ou defina `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET`).
 5. Copie **Project URL** e **anon key** para `.env.local`.
@@ -35,12 +35,12 @@ Acesse `http://localhost:3000/login`.
    |----------|------------|
    | `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API → URL |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | API → `anon` **public** (ou use `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` com a chave publishable) |
-   | `SUPABASE_SERVICE_ROLE_KEY` | API → `service_role` **secret** (nunca no cliente) |
+   | `SUPABASE_SERVICE_ROLE_KEY` ou `SUPABASE_SECRET_KEY` | API → **Secret** (`sb_secret_…`) do **mesmo** projeto da URL. Chave errada → link público 404. |
    | `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET` | `fotos-alunos` |
    | `NEXT_PUBLIC_APP_URL` | `https://avtqapp.vercel.app` |
 
 3. **Redeploy** após salvar variáveis (Deployments → ⋯ → Redeploy, de preferência sem cache).
-4. Confirme: `GET https://avtqapp.vercel.app/api/health` deve retornar `"ok": true` e `/admin` deve redirecionar para `/login?next=%2Fadmin` (não `missing=supabase`).
+4. Confirme: `GET https://avtqapp.vercel.app/api/health` deve retornar `"ok": true`, `"publicLinkReady": true` (RPC instalada **ou** `adminShareLinksReadable` sem `Invalid API key`) e `/admin` deve redirecionar para `/login?next=%2Fadmin` (não `missing=supabase`).
 
 ## 5. PWA (Android / iOS)
 

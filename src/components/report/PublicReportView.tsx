@@ -9,6 +9,8 @@ import {
 } from "@/lib/assessment-form";
 import { StudentAvatar } from "@/components/students/StudentAvatar";
 import { ReportBrandHeader } from "@/components/report/ReportBrandHeader";
+import { ReportFooter } from "@/components/report/ReportFooter";
+import { ReportNomenclatureGrid } from "@/components/report/ReportNomenclatureGrid";
 import { formatBrDate } from "@/lib/format-date";
 import { APP_DISPLAY_NAME } from "@/lib/branding";
 import { calcAgeFromBirthDate } from "@/lib/utils";
@@ -59,6 +61,11 @@ export function PublicReportView({ data, photoUrl }: Props) {
   return (
     <div className="report-document mx-auto max-w-[640px] bg-[#e7eff2] pb-8">
       <ReportBrandHeader />
+      <div className="border-b border-[#c8dde8] bg-[#eef4f8] px-4 py-2 text-center">
+        <p className="font-brand text-[11px] font-bold uppercase tracking-wide text-[#115f76]">
+          {APP_DISPLAY_NAME}
+        </p>
+      </div>
       <div
         className="report-hero px-4 pb-6 pt-5 text-white"
         style={{
@@ -113,7 +120,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
                 NÃO INCLUSO NESTA AVALIAÇÃO
               </div>
             ) : (
-              <div className="flex">
+              <div className="flex flex-col sm:flex-row">
                 <div className="min-w-0 flex-1 p-3">
                   {sec.fields.map((f) => {
                     const raw = skills[`${sec.title}::${f}`];
@@ -131,7 +138,7 @@ export function PublicReportView({ data, photoUrl }: Props) {
                     );
                   })}
                 </div>
-                <div className="report-nomenclature hidden w-[38%] max-w-[150px] border-l border-[#c8dde8] bg-[#eef4f8] p-2 text-[10px] leading-snug sm:block print:block">
+                <div className="report-nomenclature w-full border-t border-[#c8dde8] bg-[#eef4f8] p-2 text-[10px] leading-snug sm:w-[38%] sm:max-w-[150px] sm:border-l sm:border-t-0 print:block">
                   <div className="mb-1 border-b border-[#c8dde8] pb-1 text-[9px] font-bold uppercase text-[var(--teal-dark)]">
                     Nomenclatura
                   </div>
@@ -233,17 +240,16 @@ export function PublicReportView({ data, photoUrl }: Props) {
         </div>
       ) : null}
 
-      <footer className="report-footer mx-3 mt-5 rounded-[10px] bg-[#115f76] p-3.5 text-center text-xs leading-relaxed text-white/90">
-        <strong>{config.nome || "Prof.ª Joyce Neres"}</strong>
-        <br />
-        CREF {config.cref || "—"} · {config.tel || ""}
-        <br />
-        {config.email || ""}
-        <br />
-        <span className="opacity-75">
-          {APP_DISPLAY_NAME} · Natação Particular
-        </span>
-      </footer>
+      <div className="mx-3 mt-5">
+        <ReportNomenclatureGrid model={student.modelo} />
+      </div>
+
+      <ReportFooter
+        nome={config.nome || "Prof.ª Joyce Neres"}
+        cref={config.cref || "02260 - G"}
+        tel={config.tel || ""}
+        email={config.email || ""}
+      />
     </div>
   );
 }
