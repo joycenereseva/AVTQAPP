@@ -39,8 +39,8 @@ alter table public.profiles enable row level security;
 
 drop policy if exists alunos_owner on public.alunos;
 create policy alunos_owner on public.alunos
-  for all using (owner_id is null or owner_id = auth.uid())
-  with check (owner_id is null or owner_id = auth.uid());
+  for all using (owner_id = auth.uid())
+  with check (owner_id = auth.uid());
 
 drop policy if exists avaliacoes_owner on public.avaliacoes;
 create policy avaliacoes_owner on public.avaliacoes
@@ -48,14 +48,14 @@ create policy avaliacoes_owner on public.avaliacoes
     exists (
       select 1 from public.alunos a
       where a.id = avaliacoes.aluno_id
-        and (a.owner_id is null or a.owner_id = auth.uid())
+        and a.owner_id = auth.uid()
     )
   )
   with check (
     exists (
       select 1 from public.alunos a
       where a.id = avaliacoes.aluno_id
-        and (a.owner_id is null or a.owner_id = auth.uid())
+        and a.owner_id = auth.uid()
     )
   );
 
@@ -66,7 +66,7 @@ create policy share_links_owner on public.share_links
       select 1 from public.avaliacoes av
       join public.alunos a on a.id = av.aluno_id
       where av.id = share_links.avaliacao_id
-        and (a.owner_id is null or a.owner_id = auth.uid())
+        and a.owner_id = auth.uid()
     )
   )
   with check (
@@ -74,7 +74,7 @@ create policy share_links_owner on public.share_links
       select 1 from public.avaliacoes av
       join public.alunos a on a.id = av.aluno_id
       where av.id = share_links.avaliacao_id
-        and (a.owner_id is null or a.owner_id = auth.uid())
+        and a.owner_id = auth.uid()
     )
   );
 

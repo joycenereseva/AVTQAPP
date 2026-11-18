@@ -58,7 +58,14 @@ export async function deactivateStudent(studentId: string) {
 }
 
 export async function updateStudentPhoto(studentId: string, photoPath: string | null) {
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
+  const { data: existing } = await supabase
+    .from("alunos")
+    .select("id")
+    .eq("id", studentId)
+    .eq("owner_id", user.id)
+    .single();
+  if (!existing) throw new Error("Aluno não encontrado ou sem permissão.");
   const { error } = await supabase.from("alunos").update({ foto_url: photoPath }).eq("id", studentId);
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
