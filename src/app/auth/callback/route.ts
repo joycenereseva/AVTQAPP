@@ -3,11 +3,20 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
+/** Aceita apenas caminhos relativos para evitar redirecionamento aberto. */
+function safeRedirectPath(raw: string | null, fallback: string): string {
+  if (!raw) return fallback;
+  // Rejeita URLs absolutas (com protocolo ou //host) e path traversal
+  if (/^(https?:)?\/\//i.test(raw) || raw.includes("..")) return fallback;
+  // Deve começar com /
+  return raw.startsWith("/") ? raw : fallback;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const type = searchParams.get("type");
-  const next = searchParams.get("next") ?? "/admin";
+  const next = safeRedirectPath(searchParams.get("next"), "/admin");
 
   if (code) {
     const cookieStore = await cookies();
@@ -28,7 +37,6 @@ export async function GET(request: NextRequest) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      // recovery type → redirect to set new password
       if (type === "recovery") {
         return NextResponse.redirect(new URL("/nova-senha", origin));
       }
